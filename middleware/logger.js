@@ -42,4 +42,4 @@ const logger = (req, res, next) => {
     next() // to move onto next piece of middleware or eventually the controller where the request would be processed, the logger would come first before those things
 }
 
-module.exports { logEvents, logger } // both are exported, since we might want to use log events inside of an error handler
+module.exports = { logEvents, logger } // both are exported, since we might want to use log events inside of an error handler
