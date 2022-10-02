@@ -2,14 +2,24 @@ const express = require('express')
 const app = express()
 // import path from node.js service
 const path = require('path')
+// importing the logger
+const { logger } = require('./middleware/logger')
+const errorHandler = require ('./middleware/errorHandler')
+const cors = require('cors')
+const corsOptions = require('./config/corsOptions')
+const cookieParser = require('cookie-parser')
 // This helps set what port the server 
 // runs on in development and when it is deployed somewhere.
 // process.env.PORT - if the place it is deployed has a port number saved 
 // in the environment variable, 
 // otherwise run it locally at PORT 3500
 const PORT = process.env.PORT || 3500
-
+// Want the logger to happen before everything else, so   
+app.use(logger)
+// Lets app receive and parse json data
 app.use(express.json())
+app.use(cookieParser())
+app.use(cors(corsOptions)) // once corsOptions is passed into cors, cors is now set up
 // the '/' is usually the root or index of a web page.
 // __dirname is a global variable that node.js understands and it says look inside of the folder we're in
 // then look inside the public folder.
@@ -32,6 +42,8 @@ app.all('*', (req, res) => {
     else
         res.type('txt').send('404 Not Found')
 })
+// Using errorHandler just before apps starts listening
+app.use(errorHandler)
 
 // () is a function and => is saying within this function do this.
 // A template literal is what is within the console.log function.
