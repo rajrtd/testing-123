@@ -1,3 +1,7 @@
+// This allows you to use dotenv throughout the package, 
+// even though you don't need it in every file
+// dotenv file needs to be at the same level as the  
+require('dotenv').config()
 const express = require('express')
 const app = express()
 // import path from node.js service
@@ -8,12 +12,18 @@ const errorHandler = require ('./middleware/errorHandler')
 const cors = require('cors')
 const corsOptions = require('./config/corsOptions')
 const cookieParser = require('cookie-parser')
+const connectDB = require('./config/dbConn')
+const mongoose = require('mongoose')
+const { logEvents } = require('./middleware/logger')
 // This helps set what port the server 
 // runs on in development and when it is deployed somewhere.
 // process.env.PORT - if the place it is deployed has a port number saved 
 // in the environment variable, 
 // otherwise run it locally at PORT 3500
 const PORT = process.env.PORT || 3500
+// this is how you pull an environment variable from the .env file 
+console.log(process.env.NODE_ENV)
+connectDB()
 // Want the logger to happen before everything else, so   
 app.use(logger)
 // Lets app receive and parse json data
@@ -45,11 +55,16 @@ app.all('*', (req, res) => {
 // Using errorHandler just before apps starts listening
 app.use(errorHandler)
 
-// () is a function and => is saying within this function do this.
-// A template literal is what is within the console.log function.
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+mongoose.connection.once('open', () => {
+    console.log('Connected to MongoDB')
+    // () is a function and => is saying within this function do this.
+    // A template literal is what is within the console.log function.
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+})
 
-
+mongoose.connection.on('error', err => /* this is a call back */{
+    logEvents(`${err.no}: ${err.code}\t${err.syscall}\t${err.hostname}`, 'mongoErrLog.log')
+})
 //css folder is made in public folder
 
 // normally with REST API we're just gonna be receiving requests and sending back json data when requested
