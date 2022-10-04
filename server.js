@@ -39,6 +39,7 @@ app.use('/', express.static(path.join(__dirname, '/public'))) // you don't have 
 
 // looking for a routes folder then a root file.
 app.use('/', require('./routes/root'))
+app.use('/users', require('./routes/userRoutes'))
 
 // instead of app.use so it listens for the astrix which basically means 'all' which is routed to this instead of anything else.
 app.all('*', (req, res) => {
